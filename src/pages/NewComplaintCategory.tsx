@@ -31,17 +31,18 @@ const NewComplaintCategory: React.FC = () => {
         <p className="text-md md:text-lg text-gray-600 mb-8">Select a category to report a new issue.</p>
 
         <div className="grid grid-cols-2 gap-4">
-          {categories.map((category) => (
-            <Button
-              key={category.name}
-              onClick={() => handleCategoryClick(category.name)}
-              className={cn(
-                "flex flex-col items-center justify-center text-white p-4 rounded-lg shadow-xl border border-transparent w-full h-24 text-center transition-all transform hover:scale-105 hover:border-white/20",
-                category.color
-              )}
-            >
-              <span className="text-lg font-semibold text-wrap">{category.name}</span>
-            </Button>
+          {categories.map((category, index) => (
+            <div key={category.name} className="animate-fade-in" style={{ animationDelay: `${0.1 * (index + 1)}s` }}>
+              <Button
+                onClick={() => handleCategoryClick(category.name)}
+                className={cn(
+                  "flex flex-col items-center justify-center text-white p-4 rounded-lg shadow-xl border border-transparent w-full h-24 text-center transition-all transform hover:scale-105 hover:border-white/20",
+                  category.color
+                )}
+              >
+                <span className="text-lg font-semibold text-wrap">{category.name}</span>
+              </Button>
+            </div>
           ))}
         </div>
       </div>

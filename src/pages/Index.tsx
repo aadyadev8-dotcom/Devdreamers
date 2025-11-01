@@ -13,27 +13,33 @@ const Index = () => {
         <p className="text-md md:text-lg text-gray-600 mb-8">Your platform for community reporting and engagement.</p>
 
         <div className="space-y-4">
-          <ActionCard
-            icon={Plus}
-            title="New Complaint"
-            description="Report an issue in your area."
-            bgColor="bg-action-blue"
-            onClick={() => navigate("/new-complaint-category")} // Navigate to the new page
-          />
-          <ActionCard
-            icon={Users}
-            title="Community Feed"
-            description="See reported issues and their status."
-            bgColor="bg-action-green"
-            onClick={() => console.log("Community Feed clicked")}
-          />
-          <ActionCard
-            icon={Trophy}
-            title="View Leaderboard"
-            description="Check out top community contributors."
-            bgColor="bg-action-red"
-            onClick={() => console.log("View Leaderboard clicked")}
-          />
+          <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <ActionCard
+              icon={Plus}
+              title="New Complaint"
+              description="Report an issue in your area."
+              bgColor="bg-action-blue"
+              onClick={() => navigate("/new-complaint-category")} // Navigate to the new page
+            />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <ActionCard
+              icon={Users}
+              title="Community Feed"
+              description="See reported issues and their status."
+              bgColor="bg-action-green"
+              onClick={() => console.log("Community Feed clicked")}
+            />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <ActionCard
+              icon={Trophy}
+              title="View Leaderboard"
+              description="Check out top community contributors."
+              bgColor="bg-action-red"
+              onClick={() => console.log("View Leaderboard clicked")}
+            />
+          </div>
         </div>
       </div>
       <MadeWithDyad />
