@@ -18,13 +18,14 @@ const ActionCard: React.FC<ActionCardProps> = ({ icon: Icon, title, description,
     <Button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center text-white p-6 rounded-lg shadow-button-3d border border-transparent w-full max-w-sm h-48 text-center transition-all transform hover:scale-105 active:scale-95",
+        "flex flex-col items-center justify-center text-white p-6 rounded-lg shadow-button-3d border border-transparent w-full max-w-xs h-36 text-center transition-all transform hover:scale-105 active:scale-95",
         backgroundColorClass
       )}
     >
-      <Icon className="h-10 w-10 mb-2" /> {/* Increased icon size */}
-      <h3 className="text-xl font-semibold mb-1">{title}</h3> {/* Increased title font size */}
-      <p className="text-base opacity-90 h-[3rem] flex items-center justify-center">{description}</p> {/* Increased description font size and height */}
+      <Icon className="h-8 w-8 mb-2" />
+      <h3 className="text-lg font-semibold mb-1">{title}</h3>
+      {/* Added fixed height for description to ensure consistent spacing */}
+      <p className="text-sm opacity-90 h-[2.5rem] flex items-center justify-center">{description}</p>
     </Button>
   );
 };
