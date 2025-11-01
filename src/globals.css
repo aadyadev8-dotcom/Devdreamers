@@ -96,16 +96,6 @@
   }
 
   body {
-    @apply bg-app-background text-foreground; /* Using the new custom background color */
+    @apply bg-background text-foreground;
   }
-}
-
-/* Add this @font-face rule for TAN Meringue */
-@font-face {
-  font-family: 'TAN Meringue';
-  src: url('/fonts/TAN-Meringue.woff2') format('woff2'),
-       url('/fonts/TAN-Meringue.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
 }

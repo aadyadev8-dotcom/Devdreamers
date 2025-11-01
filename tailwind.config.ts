@@ -18,9 +18,6 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        'tan-meringue': ['TAN Meringue', 'sans-serif'], // Added TAN Meringue font family
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -65,38 +62,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Custom colors for Urban Eye app
-        'app-background': '#1A2335', // Dark blue
-        'urban-card-background': '#FFCCE5', // Pink
-        'action-blue': '#3B82F6', // Blue for New Complaint
-        'action-green': '#22C55E', // Green for Community Feed
-        'action-red': '#8B0000', // Changed to Dark Red for View Leaderboard
-        'action-purple': '#8B5CF6', // New purple for "Add Description Only" button
-        // Custom colors for category buttons (these will be overridden by the new button gradient)
-        'category-potholes': '#8B0032', // Dark Red/Maroon
-        'category-water': '#6600CC', // Purple
-        'category-streetlights': '#191932', // Very Dark Blue
-        'category-dumping': '#CC0033', // Red
-        'category-garbage': '#663300', // Brown
-        'category-amenities': '#800080', // Dark Magenta/Purple
-        'category-other': '#FF6699', // Bright Pink
-
-        // New colors for UI enhancement
-        'nav-gradient-start': '#FFCCE5', // Light pink
-        'nav-gradient-end': '#E0BBE4', // Lavender
-        'button-gradient-start': '#FF7DAE', // Pink for buttons
-        'button-gradient-end': '#FF5F96', // Darker pink for buttons
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        'card-lg': '1.25rem', // Slightly more rounded for the card
-      },
-      boxShadow: {
-        'nav-elevation': '0 2px 8px rgba(0, 0, 0, 0.1)', // Soft shadow for nav bar
-        'button-3d': '0px 4px 10px rgba(0, 0, 0, 0.15)', // 3D shadow for buttons
-        'card-soft': '0 4px 15px rgba(0, 0, 0, 0.1)', // Soft shadow for the main card
       },
       keyframes: {
         "accordion-down": {
@@ -115,15 +85,10 @@ export default {
             height: "0",
           },
         },
-        "fade-in": {
-          "0%": { opacity: "0", transform: "translateY(5px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.4s ease-out forwards",
       },
     },
   },
