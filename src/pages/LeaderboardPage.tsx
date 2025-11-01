@@ -11,10 +11,9 @@ interface Profile {
   first_name: string;
   last_name: string;
   issues_resolved: number;
-  unlocked_badges: string[]; // Assuming badges are stored as an array of strings (e.g., emoji)
+  unlocked_badges: string[];
+  avatar_url?: string; // Added avatar_url to the interface
 }
-
-const badgeEmojis = ['🥇', '🥈', '🥉', '🏅', '🌟', '✨']; // Emojis for top contributors
 
 const LeaderboardPage = () => {
   const [leaderboard, setLeaderboard] = useState<Profile[]>([]);
@@ -26,7 +25,7 @@ const LeaderboardPage = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, issues_resolved, unlocked_badges')
+        .select('id, first_name, last_name, issues_resolved, unlocked_badges, avatar_url') // Select avatar_url
         .order('issues_resolved', { ascending: false })
         .limit(10); // Limit to top 10 for the leaderboard
 
@@ -43,13 +42,28 @@ const LeaderboardPage = () => {
     fetchLeaderboard();
   }, []);
 
+  const getCrownEmoji = (index: number) => {
+    if (index === 0) return '👑';
+    if (index === 1) return '🥈';
+    if (index === 2) return '🥉';
+    return '';
+  };
+
+  const getRandomAvatar = (id: string) => {
+    // Use a consistent random avatar based on user ID for a stable look
+    const seed = id.charCodeAt(0) + id.charCodeAt(id.length - 1);
+    const gender = seed % 2 === 0 ? 'men' : 'women';
+    const number = (seed % 99) + 1; // 1 to 99
+    return `https://randomuser.me/api/portraits/${gender}/${number}.jpg`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-900 text-white">
       <Header />
       <main className="flex-grow flex flex-col items-center justify-center p-4 text-center">
         <Card className="bg-urban-eye-pink p-8 rounded-lg shadow-lg max-w-md w-full text-gray-800">
           <CardHeader className="p-0 mb-6">
-            <CardTitle className="text-3xl font-bold mb-2">Community Leaderboard</CardTitle>
+            <CardTitle className="text-3xl font-bold mb-2">🏆 Community Leaderboard</CardTitle>
             <p className="text-gray-600">Top contributors making a difference!</p>
           </CardHeader>
           <CardContent className="p-0">
@@ -60,34 +74,39 @@ const LeaderboardPage = () => {
             ) : leaderboard.length === 0 ? (
               <p className="text-gray-600">No contributors yet. Be the first!</p>
             ) : (
-              <div className="space-y-3 mb-6">
+              <section className="leaderboard grid gap-3 w-full" role="list">
                 {leaderboard.map((profile, index) => (
-                  <div
+                  <article
                     key={profile.id}
-                    className="flex items-center justify-between bg-white p-4 rounded-md shadow-sm"
+                    className="card bg-white rounded-xl shadow-md flex items-center justify-between p-3 transition-transform duration-100 ease-in-out hover:translate-y-[-2px] hover:shadow-lg focus-within:translate-y-[-2px] focus-within:shadow-lg"
+                    tabIndex={0}
+                    role="listitem"
                   >
-                    <div className="flex items-center">
-                      <span className="font-bold text-lg mr-2">{index + 1}.</span>
-                      <span className="text-lg font-medium">
-                        {profile.first_name} {profile.last_name}
-                      </span>
-                      {profile.unlocked_badges && profile.unlocked_badges.length > 0 && (
-                        <span className="ml-2 text-xl">{profile.unlocked_badges[0]}</span>
-                      )}
-                      {/* Display a default badge if no custom badges are unlocked, for top 3 */}
-                      {index === 0 && !profile.unlocked_badges?.length && <span className="ml-2 text-xl">🥇</span>}
-                      {index === 1 && !profile.unlocked_badges?.length && <span className="ml-2 text-xl">🥈</span>}
-                      {index === 2 && !profile.unlocked_badges?.length && <span className="ml-2 text-xl">🥉</span>}
+                    <div className="left flex items-center gap-3">
+                      <div className="rank font-semibold w-6 text-center">
+                        {getCrownEmoji(index)} {index + 1}
+                      </div>
+                      <img
+                        src={profile.avatar_url || getRandomAvatar(profile.id)}
+                        alt={`${profile.first_name} ${profile.last_name} profile picture`}
+                        className="avatar w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                      />
+                      <div className="info flex flex-col text-left">
+                        <span className="name font-semibold text-base">
+                          {profile.first_name} {profile.last_name}
+                        </span>
+                        {/* Removed role as it's not in the current schema */}
+                      </div>
                     </div>
-                    <span className="text-lg font-semibold text-gray-700">
-                      {profile.issues_resolved} reports resolved
-                    </span>
-                  </div>
+                    <div className="points font-medium text-blue-600 text-lg">
+                      {profile.issues_resolved} pts
+                    </div>
+                  </article>
                 ))}
-              </div>
+              </section>
             )}
             <Link to="/new-complaint-category">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold mt-6">
                 Back to Categories
               </Button>
             </Link>
