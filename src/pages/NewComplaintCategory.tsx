@@ -36,11 +36,11 @@ const NewComplaintCategory: React.FC = () => {
               key={category.name}
               onClick={() => handleCategoryClick(category.name)}
               className={cn(
-                "flex flex-col items-center justify-center text-white p-4 rounded-lg shadow-lg w-full h-24 text-center transition-all transform hover:scale-105",
+                "flex flex-col items-center justify-center text-white p-4 rounded-lg shadow-xl border border-transparent w-full h-24 text-center transition-all transform hover:scale-105 hover:border-white/20",
                 category.color
               )}
             >
-              <span className="text-lg font-semibold">{category.name}</span>
+              <span className="text-lg font-semibold text-wrap">{category.name}</span>
             </Button>
           ))}
         </div>
