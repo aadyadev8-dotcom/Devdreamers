@@ -15,21 +15,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-app-background">
       {/* Top Navigation Bar */}
-      <nav className="flex items-center justify-between p-4 bg-gradient-to-r from-nav-gradient-start to-nav-gradient-end shadow-nav-elevation fixed top-0 left-0 right-0 z-10">
-        <h1 className="text-xl font-bold text-gray-800">Urban Eye</h1>
-        <div className="flex space-x-4">
-          <Home
-            className="h-6 w-6 text-gray-700 cursor-pointer hover:text-gray-900 transition-colors"
-            onClick={() => navigate('/')}
-          />
-          <Camera
-            className="h-6 w-6 text-gray-700 cursor-pointer hover:text-gray-900 transition-colors"
-            onClick={() => console.log("Take Photo clicked")} // Placeholder for camera/upload
-          />
-          <Settings
-            className="h-6 w-6 text-gray-700 cursor-pointer hover:text-gray-900 transition-colors"
-            onClick={() => console.log("Settings clicked")} // Placeholder for settings
-          />
+      <nav className="fixed top-0 left-0 right-0 z-10 bg-gradient-to-r from-nav-gradient-start to-nav-gradient-end shadow-nav-elevation">
+        <div className="max-w-md mx-auto flex items-center justify-between p-4 w-full"> {/* This div constrains the content */}
+          <h1 className="text-xl font-bold text-gray-800">Urban Eye</h1>
+          <div className="flex space-x-4">
+            <Home
+              className="h-6 w-6 text-gray-700 cursor-pointer hover:text-gray-900 transition-colors"
+              onClick={() => navigate('/')}
+            />
+            <Camera
+              className="h-6 w-6 text-gray-700 cursor-pointer hover:text-gray-900 transition-colors"
+              onClick={() => console.log("Take Photo clicked")} // Placeholder for camera/upload
+            />
+            <Settings
+              className="h-6 w-6 text-gray-700 cursor-pointer hover:text-gray-900 transition-colors"
+              onClick={() => console.log("Settings clicked")} // Placeholder for settings
+            />
+          </div>
         </div>
       </nav>
 
