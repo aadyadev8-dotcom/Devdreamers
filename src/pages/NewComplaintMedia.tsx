@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input'; // Import Input component
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Camera, Video, Upload } from 'lucide-react';
@@ -17,6 +18,7 @@ const NewComplaintMedia: React.FC = () => {
   const [description, setDescription] = useState<string>('');
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState<boolean>(false);
+  const [urlInput, setUrlInput] = useState<string>(''); // New state for URL input
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -41,8 +43,16 @@ const NewComplaintMedia: React.FC = () => {
       setPreviewUrl(url);
       setIsVideo(file.type.startsWith('video/'));
       setUploadStatus(null); // Clear previous status
+      setUrlInput(''); // Clear URL input if a file is selected
       console.log('File selected for preview:', file.name, 'Type:', file.type);
     }
+  };
+
+  const handleUrlInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUrlInput(e.target.value);
+    setSelectedFile(null); // Clear selected file if URL is entered
+    setPreviewUrl(null); // Clear preview
+    setUploadStatus(null); // Clear upload status
   };
 
   const uploadMedia = async (): Promise<string | null> => {
@@ -79,19 +89,26 @@ const NewComplaintMedia: React.FC = () => {
 
   const handleContinueToLocation = async () => {
     let fileUrl = null;
+    let isMediaVideo = false;
+
     if (selectedFile) {
       fileUrl = await uploadMedia();
       if (!fileUrl) {
         console.error('Failed to get file URL, cannot continue to location.');
         return; // Stop if upload failed
       }
+      isMediaVideo = isVideo; // Use the state from file selection
+    } else if (urlInput) {
+      fileUrl = urlInput;
+      // Simple check for video based on URL extension for testing purposes
+      isMediaVideo = /\.(mp4|webm|ogg|mov)$/i.test(urlInput);
     }
 
     const tempComplaint = {
       category,
       description,
       fileUrl,
-      isVideo: isVideo && selectedFile, // Only true if media is present and is video
+      isVideo: isMediaVideo,
     };
     localStorage.setItem('tempComplaint', JSON.stringify(tempComplaint));
     console.log('Temporary complaint data stored in localStorage:', tempComplaint);
@@ -125,7 +142,6 @@ const NewComplaintMedia: React.FC = () => {
         >
           <Video className="h-6 w-6 mb-1" />
           <span className="text-sm font-semibold text-wrap">Record Video</span>
-          {/* Changed from "camcorder" to "environment" */}
           <input
             type="file"
             accept="video/*"
@@ -151,8 +167,19 @@ const NewComplaintMedia: React.FC = () => {
         </Button>
       </div>
 
+      {/* URL Input Field */}
+      <div className="mb-6">
+        <Input
+          type="text"
+          placeholder="Or paste image/video URL here (for testing)"
+          value={urlInput}
+          onChange={handleUrlInputChange}
+          className="w-full p-2 border rounded-md text-gray-700 focus:ring-action-blue focus:border-action-blue"
+        />
+      </div>
+
       {previewUrl && (
-        <div className="mb-6 animate-fade-in max-h-96 overflow-hidden"> {/* Changed max-h-64 to max-h-96 */}
+        <div className="mb-6 animate-fade-in max-h-96 overflow-hidden">
           <h3 className="text-lg font-semibold text-gray-700 mb-2">Preview:</h3>
           {isVideo ? (
             <video src={previewUrl} controls className="max-w-full h-auto rounded-lg shadow-md mx-auto"></video>
@@ -185,7 +212,7 @@ const NewComplaintMedia: React.FC = () => {
       <div className="space-y-4">
         <Button
           onClick={handleContinueToLocation}
-          disabled={!description && !selectedFile} // Disable if no description and no media
+          disabled={!description && !selectedFile && !urlInput} // Disable if no description, no media file, and no URL
           className="w-full bg-action-green text-white py-3 px-6 rounded-lg shadow-button-3d hover:scale-105 active:scale-95 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Continue to Location
