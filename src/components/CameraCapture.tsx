@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, RotateCcw, Check, X } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
@@ -14,37 +14,53 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCancel }) =>
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState<boolean>(false);
-  const [triggerCameraRestart, setTriggerCameraRestart] = useState(0); // State to force useEffect re-run
+  const [isVideoReady, setIsVideoReady] = useState<boolean>(false); // New state for video readiness
+  const [triggerCameraRestart, setTriggerCameraRestart] = useState(0);
 
   useEffect(() => {
-    let activeStream: MediaStream | null = null; // Use a local variable for the stream within this effect
+    let activeStream: MediaStream | null = null;
+    let videoElement: HTMLVideoElement | null = null; // To hold reference to video element for event listeners
+
+    const handleCanPlay = () => {
+      setIsVideoReady(true);
+      console.log("Video is ready to play, Capture button should be enabled.");
+    };
 
     const initCamera = async () => {
       setIsCapturing(true);
-      setCapturedImage(null); // Clear any previous captured image
+      setCapturedImage(null);
+      setIsVideoReady(false); // Reset ready state when initializing camera
 
       try {
-        console.log("Attempting to get user media from useEffect...");
+        console.log("Attempting to get user media...");
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        console.log("User media obtained from useEffect:", mediaStream);
-        activeStream = mediaStream; // Assign to local variable for cleanup
-        setStream(mediaStream); // Update state for other parts of the component
+        console.log("User media obtained:", mediaStream);
+        activeStream = mediaStream;
+        setStream(mediaStream);
 
         if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-          console.log("Video srcObject set from useEffect.");
+          videoElement = videoRef.current;
+          videoElement.srcObject = mediaStream;
+          videoElement.oncanplay = handleCanPlay; // Attach event listener
+          videoElement.onerror = (event) => {
+            setIsVideoReady(false);
+            showError("Error loading camera feed.");
+            console.error("Video element error:", event);
+          };
+          console.log("Video srcObject set.");
           try {
-            await videoRef.current.play();
-            console.log("Video playing successfully from useEffect.");
+            await videoElement.play();
+            console.log("Video playing successfully.");
           } catch (playError) {
-            console.error("Error playing video from useEffect:", playError);
+            console.error("Error playing video:", playError);
             showError("Failed to play camera feed. Please check browser settings.");
+            setIsVideoReady(false);
           }
         } else {
-          console.warn("videoRef.current is null when trying to set srcObject from useEffect.");
+          console.warn("videoRef.current is null when trying to set srcObject.");
         }
       } catch (err: any) {
-        console.error("Error accessing camera from useEffect:", err);
+        console.error("Error accessing camera:", err);
         let errorMessage = "Failed to access camera. Please ensure permissions are granted.";
         if (err.name === "NotAllowedError") {
           errorMessage = "Camera access denied. Please allow camera access in your browser settings.";
@@ -61,22 +77,25 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCancel }) =>
     initCamera();
 
     return () => {
-      // Cleanup function: stop the stream when component unmounts
-      if (activeStream) { // Use the local variable for cleanup
-        console.log("Stopping stream tracks on unmount from useEffect cleanup.");
+      if (activeStream) {
+        console.log("Stopping stream tracks on cleanup.");
         activeStream.getTracks().forEach(track => track.stop());
       }
+      if (videoElement) {
+        videoElement.oncanplay = null; // Clean up event listener
+        videoElement.onerror = null; // Clean up event listener
+      }
     };
-  }, [onCancel, triggerCameraRestart]); // `triggerCameraRestart` will force re-run when retakePhoto is called.
+  }, [onCancel, triggerCameraRestart]);
 
   const takePhoto = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       
-      // Ensure video has loaded metadata to get correct dimensions
       if (video.videoWidth === 0 || video.videoHeight === 0) {
         showError("Camera feed not ready. Please wait a moment and try again.");
+        console.error("Cannot take photo: video dimensions are zero.");
         return;
       }
 
@@ -90,8 +109,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCancel }) =>
         setIsCapturing(false);
         if (stream) {
           console.log("Stopping stream tracks after photo capture.");
-          stream.getTracks().forEach(track => track.stop()); // Stop camera stream after capture
-          setStream(null); // Clear the stream state after stopping
+          stream.getTracks().forEach(track => track.stop());
+          setStream(null);
         }
       }
     }
@@ -99,7 +118,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCancel }) =>
 
   const confirmPhoto = () => {
     if (capturedImage) {
-      // Convert data URL to Blob, then to File
       const byteString = atob(capturedImage.split(',')[1]);
       const mimeString = capturedImage.split(',')[0].split(':')[1].split(';')[0];
       const ab = new ArrayBuffer(byteString.length);
@@ -116,7 +134,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCancel }) =>
 
   const retakePhoto = () => {
     setCapturedImage(null);
-    setTriggerCameraRestart(prev => prev + 1); // Increment to trigger useEffect
+    setTriggerCameraRestart(prev => prev + 1);
   };
 
   return (
@@ -134,7 +152,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCancel }) =>
           <Button
             className="bg-green-600 hover:bg-green-700 text-white text-lg font-semibold px-6 py-3 rounded-full"
             onClick={takePhoto}
-            disabled={!stream || videoRef.current?.readyState < 2} // Disable if stream not ready
+            disabled={!stream || !isVideoReady} // Use new isVideoReady state
           >
             <Camera className="h-6 w-6 mr-2" />
             Capture
