@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import { Card } from '@/components/ui/card'; // Using shadcn Card component
+import { Link } from 'react-router-dom';
 
 const CommunityFeedPage = () => {
   // Hardcoded counts for now, will integrate with Supabase later
@@ -17,10 +18,12 @@ const CommunityFeedPage = () => {
           <p className="text-gray-600 mb-8">See what's happening in your neighborhood.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-            <Card className="bg-red-600 text-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
-              <h2 className="text-xl font-semibold mb-2">Pending</h2>
-              <p className="text-5xl font-bold">{pendingCount}</p>
-            </Card>
+            <Link to="/pending-complaints" className="block"> {/* Added Link here */}
+              <Card className="bg-red-600 text-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center cursor-pointer hover:bg-red-700 transition-colors">
+                <h2 className="text-xl font-semibold mb-2">Pending</h2>
+                <p className="text-5xl font-bold">{pendingCount}</p>
+              </Card>
+            </Link>
             <Card className="bg-blue-600 text-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
               <h2 className="text-xl font-semibold mb-2">In Progress</h2>
               <p className="text-5xl font-bold">{inProgressCount}</p>
