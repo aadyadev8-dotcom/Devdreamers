@@ -93,19 +93,46 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ onRecord, onCancel }) => 
   const startRecording = () => {
     if (stream && videoRef.current && isVideoReady) {
       setRecordedChunks([]);
-      const options = { mimeType: 'video/webm; codecs=vp9' }; // Common and widely supported format
+      // Check for supported MIME types
+      let options: MediaRecorderOptions = { mimeType: 'video/webm' }; // Default to webm
+      if (MediaRecorder.isTypeSupported('video/webm; codecs=vp9')) {
+        options = { mimeType: 'video/webm; codecs=vp9' };
+      } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+        options = { mimeType: 'video/mp4' }; // Fallback to mp4 if webm/vp9 not supported
+      }
+      console.log("Using MIME type for recording:", options.mimeType);
+
       try {
         const mediaRecorder = new MediaRecorder(stream, options);
         mediaRecorderRef.current = mediaRecorder;
 
         mediaRecorder.ondataavailable = (event) => {
           if (event.data.size > 0) {
-            setRecordedChunks((prev) => [...prev, event.data]);
+            setRecordedChunks((prev) => {
+              console.log(`Data available: ${event.data.size} bytes. Total chunks: ${prev.length + 1}`);
+              return [...prev, event.data];
+            });
           }
         };
 
         mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          console.log("Recording stopped. Total chunks collected:", recordedChunks.length);
+          if (recordedChunks.length === 0) {
+            showError("No video data was recorded. Please ensure you recorded for a sufficient duration.");
+            setRecordedVideoUrl(null); // Ensure no black screen from empty data
+            retakeVideo(); // Go back to live camera view
+            return;
+          }
+
+          const blob = new Blob(recordedChunks, { type: options.mimeType });
+          console.log("Created Blob with size:", blob.size, "bytes and type:", blob.type);
+          if (blob.size === 0) {
+            showError("Recorded video is empty. Please try again.");
+            setRecordedVideoUrl(null);
+            retakeVideo();
+            return;
+          }
+
           const url = URL.createObjectURL(blob);
           setRecordedVideoUrl(url);
           setIsRecording(false);
@@ -115,6 +142,14 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ onRecord, onCancel }) => 
             stream.getTracks().forEach(track => track.stop());
             setStream(null);
           }
+        };
+
+        mediaRecorder.onerror = (event) => {
+          console.error("MediaRecorder error:", event);
+          showError("An error occurred during recording. Please try again.");
+          setIsRecording(false);
+          setRecordedVideoUrl(null);
+          retakeVideo();
         };
 
         mediaRecorder.start();
@@ -138,13 +173,18 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ onRecord, onCancel }) => 
 
   const confirmVideo = () => {
     if (recordedVideoUrl) {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      const file = new File([blob], `recorded-video-${Date.now()}.webm`, { type: 'video/webm' });
+      const blob = new Blob(recordedChunks, { type: mediaRecorderRef.current?.mimeType || 'video/webm' }); // Use the actual mimeType used for recording
+      const file = new File([blob], `recorded-video-${Date.now()}.webm`, { type: blob.type });
       onRecord(file);
+      // Revoke the object URL after confirming to free up memory
+      URL.revokeObjectURL(recordedVideoUrl);
     }
   };
 
   const retakeVideo = () => {
+    if (recordedVideoUrl) {
+      URL.revokeObjectURL(recordedVideoUrl); // Revoke previous URL
+    }
     setRecordedVideoUrl(null);
     setRecordedChunks([]);
     setTriggerRecorderRestart(prev => prev + 1); // Trigger useEffect to re-initialize camera
@@ -155,7 +195,16 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({ onRecord, onCancel }) => 
       {!recordedVideoUrl ? (
         <video ref={videoRef} className="w-full h-auto max-h-[70vh] object-cover rounded-md mb-4" autoPlay playsInline muted />
       ) : (
-        <video src={recordedVideoUrl} controls className="w-full h-auto max-h-[70vh] object-contain rounded-md mb-4" />
+        <video 
+          src={recordedVideoUrl} 
+          controls 
+          className="w-full h-auto max-h-[70vh] object-contain rounded-md mb-4" 
+          onError={(e) => {
+            console.error("Error playing recorded video:", e);
+            showError("Failed to play recorded video. It might be corrupted or in an unsupported format.");
+            // Optionally, offer to retake or go back
+          }}
+        />
       )}
 
       <div className="flex space-x-4 mt-4">
