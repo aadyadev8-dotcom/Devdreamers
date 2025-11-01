@@ -9,7 +9,7 @@ const CommunityFeedPage = () => {
   const resolvedCount = 2;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-900 text-white">
+    <div className="min-h-screen flex flex-col bg-urban-eye-pink text-white"> {/* Changed background here */}
       <Header />
       <main className="flex-grow flex flex-col items-center p-4">
         <div className="w-full max-w-md text-center mb-8">
