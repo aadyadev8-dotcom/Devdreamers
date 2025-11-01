@@ -113,13 +113,6 @@ const AddComplaintMediaPage = () => {
     }
   };
 
-  const handleAddDescriptionOnly = () => {
-    localStorage.setItem('newComplaintDescription', description);
-    localStorage.removeItem('newComplaintMediaUrl'); // Ensure no media URL is stored
-    showSuccess('Description saved. Continuing to location.');
-    navigate('/new-complaint-location');
-  };
-
   if (showCamera) {
     return <CameraCapture onCapture={handleCapturedPhoto} onCancel={() => setShowCamera(false)} />;
   }
@@ -201,15 +194,9 @@ const AddComplaintMediaPage = () => {
 
           <div className="space-y-4">
             <Button
-              className="w-full bg-pink-600 hover:bg-pink-700 text-white text-lg font-semibold"
-              onClick={handleAddDescriptionOnly}
-            >
-              Add Description Only
-            </Button>
-            <Button
               className="w-full bg-green-600 hover:bg-green-700 text-white text-lg font-semibold"
               onClick={handleContinue}
-              disabled={!selectedFile && !description} // Disable if no file and no description
+              disabled={!selectedFile} // Now requires a selected file to proceed
             >
               Continue to Location
             </Button>
