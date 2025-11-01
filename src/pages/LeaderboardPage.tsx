@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client'; // Still imported, but not used for fetching in this version
 import { showError } from '@/utils/toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -12,8 +12,22 @@ interface Profile {
   last_name: string;
   issues_resolved: number;
   unlocked_badges: string[];
-  avatar_url?: string; // Added avatar_url to the interface
+  avatar_url?: string;
 }
+
+// Static list of fake contributors
+const mockLeaderboardData: Profile[] = [
+  { id: '1', first_name: 'Aisha', last_name: 'Patel', issues_resolved: 980, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/women/68.jpg' },
+  { id: '2', first_name: 'Rohan', last_name: 'Sharma', issues_resolved: 940, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/men/44.jpg' },
+  { id: '3', first_name: 'Priya', last_name: 'Mehta', issues_resolved: 900, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/women/20.jpg' },
+  { id: '4', first_name: 'Aarav', last_name: 'Iyer', issues_resolved: 860, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/men/19.jpg' },
+  { id: '5', first_name: 'Zara', last_name: 'Khan', issues_resolved: 830, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/women/14.jpg' },
+  { id: '6', first_name: 'Vikram', last_name: 'Singh', issues_resolved: 790, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/men/32.jpg' },
+  { id: '7', first_name: 'Diya', last_name: 'Gupta', issues_resolved: 750, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/women/55.jpg' },
+  { id: '8', first_name: 'Kabir', last_name: 'Reddy', issues_resolved: 710, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/men/71.jpg' },
+  { id: '9', first_name: 'Sana', last_name: 'Malik', issues_resolved: 680, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/women/88.jpg' },
+  { id: '10', first_name: 'Arjun', last_name: 'Kumar', issues_resolved: 650, unlocked_badges: [], avatar_url: 'https://randomuser.me/api/portraits/men/25.jpg' },
+];
 
 const LeaderboardPage = () => {
   const [leaderboard, setLeaderboard] = useState<Profile[]>([]);
@@ -21,25 +35,17 @@ const LeaderboardPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, issues_resolved, unlocked_badges, avatar_url') // Select avatar_url
-        .order('issues_resolved', { ascending: false })
-        .limit(10); // Limit to top 10 for the leaderboard
-
-      if (error) {
-        console.error('Error fetching leaderboard:', error);
-        setError('Failed to load leaderboard.');
-        showError('Failed to load leaderboard.');
-      } else {
-        setLeaderboard(data || []);
-      }
+    // In this version, we are using static mock data instead of fetching from Supabase.
+    // If you want to switch back to Supabase, uncomment the fetchLeaderboard function
+    // and call it here.
+    setLoading(true);
+    // Simulate a network delay
+    const timer = setTimeout(() => {
+      setLeaderboard(mockLeaderboardData);
       setLoading(false);
-    };
+    }, 500); // 500ms delay
 
-    fetchLeaderboard();
+    return () => clearTimeout(timer);
   }, []);
 
   const getCrownEmoji = (index: number) => {
@@ -49,11 +55,12 @@ const LeaderboardPage = () => {
     return '';
   };
 
+  // This function is no longer strictly needed if all mock data has avatar_url,
+  // but kept for consistency or if you decide to mix with dynamic data later.
   const getRandomAvatar = (id: string) => {
-    // Use a consistent random avatar based on user ID for a stable look
     const seed = id.charCodeAt(0) + id.charCodeAt(id.length - 1);
     const gender = seed % 2 === 0 ? 'men' : 'women';
-    const number = (seed % 99) + 1; // 1 to 99
+    const number = (seed % 99) + 1;
     return `https://randomuser.me/api/portraits/${gender}/${number}.jpg`;
   };
 
@@ -95,7 +102,6 @@ const LeaderboardPage = () => {
                         <span className="name font-semibold text-base">
                           {profile.first_name} {profile.last_name}
                         </span>
-                        {/* Removed role as it's not in the current schema */}
                       </div>
                     </div>
                     <div className="points font-medium text-blue-600 text-lg">
