@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, Video, Upload, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/input'; // Input is not used, can be removed if not needed elsewhere
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/components/Header';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
@@ -17,7 +17,11 @@ const AddComplaintMediaPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Separate refs for each input type
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     // Store category in localStorage for multi-step form
@@ -41,15 +45,18 @@ const AddComplaintMediaPage = () => {
       setPreviewUrl(null);
       setMediaType(null);
     }
+    // Clear the input value to allow selecting the same file again if needed
+    event.target.value = '';
   };
 
   const handleClearMedia = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
     setMediaType(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // Clear the file input
-    }
+    // Clear all file inputs
+    if (photoInputRef.current) photoInputRef.current.value = '';
+    if (videoInputRef.current) videoInputRef.current.value = '';
+    if (galleryInputRef.current) galleryInputRef.current.value = '';
   };
 
   const uploadMediaToSupabase = async (file: File) => {
@@ -117,44 +124,49 @@ const AddComplaintMediaPage = () => {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <Button
               className="h-24 bg-gray-700 hover:bg-gray-800 text-white flex flex-col items-center justify-center"
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.setAttribute('capture', 'user');
-                  fileInputRef.current.click();
-                }
-              }}
+              onClick={() => photoInputRef.current?.click()}
             >
               <Camera className="h-6 w-6 mb-1" />
               Take Photo
             </Button>
             <Button
               className="h-24 bg-blue-600 hover:bg-blue-700 text-white flex flex-col items-center justify-center"
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.setAttribute('capture', 'user');
-                  fileInputRef.current.click();
-                }
-              }}
+              onClick={() => videoInputRef.current?.click()}
             >
               <Video className="h-6 w-6 mb-1" />
               Record Video
             </Button>
             <Button
               className="h-24 bg-purple-600 hover:bg-purple-700 text-white flex flex-col items-center justify-center"
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.removeAttribute('capture');
-                  fileInputRef.current.click();
-                }
-              }}
+              onClick={() => galleryInputRef.current?.click()}
             >
               <Upload className="h-6 w-6 mb-1" />
               Upload from Gallery
             </Button>
+            
+            {/* Hidden input for taking photos */}
+            <input
+              type="file"
+              accept="image/*"
+              capture="user"
+              ref={photoInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {/* Hidden input for recording videos */}
+            <input
+              type="file"
+              accept="video/*"
+              capture="user"
+              ref={videoInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {/* Hidden input for uploading from gallery */}
             <input
               type="file"
               accept="image/*,video/*"
-              ref={fileInputRef}
+              ref={galleryInputRef}
               onChange={handleFileChange}
               className="hidden"
             />
