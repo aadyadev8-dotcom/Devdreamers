@@ -2,11 +2,12 @@ import React, { useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, Video, Upload, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // Input is not used, can be removed if not needed elsewhere
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/components/Header';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { supabase } from '@/integrations/supabase/client'; // Import Supabase client
+import CameraCapture from '@/components/CameraCapture'; // Import the new CameraCapture component
 
 const AddComplaintMediaPage = () => {
   const location = useLocation();
@@ -17,9 +18,9 @@ const AddComplaintMediaPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const [showCamera, setShowCamera] = useState<boolean>(false); // State to control camera visibility
 
-  // Separate refs for each input type
-  const photoInputRef = useRef<HTMLInputElement>(null);
+  // Separate refs for each input type (only used for video/gallery now)
   const videoInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,12 +50,18 @@ const AddComplaintMediaPage = () => {
     event.target.value = '';
   };
 
+  const handleCapturedPhoto = (file: File) => {
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setMediaType('image');
+    setShowCamera(false); // Hide camera after capture
+  };
+
   const handleClearMedia = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
     setMediaType(null);
     // Clear all file inputs
-    if (photoInputRef.current) photoInputRef.current.value = '';
     if (videoInputRef.current) videoInputRef.current.value = '';
     if (galleryInputRef.current) galleryInputRef.current.value = '';
   };
@@ -113,6 +120,10 @@ const AddComplaintMediaPage = () => {
     navigate('/new-complaint-location');
   };
 
+  if (showCamera) {
+    return <CameraCapture onCapture={handleCapturedPhoto} onCancel={() => setShowCamera(false)} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-900 text-white">
       <Header />
@@ -124,7 +135,7 @@ const AddComplaintMediaPage = () => {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <Button
               className="h-24 bg-gray-700 hover:bg-gray-800 text-white flex flex-col items-center justify-center"
-              onClick={() => photoInputRef.current?.click()}
+              onClick={() => setShowCamera(true)} // Show in-app camera
             >
               <Camera className="h-6 w-6 mb-1" />
               Take Photo
@@ -144,15 +155,6 @@ const AddComplaintMediaPage = () => {
               Upload from Gallery
             </Button>
             
-            {/* Hidden input for taking photos */}
-            <input
-              type="file"
-              accept="image/*"
-              capture="user"
-              ref={photoInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-            />
             {/* Hidden input for recording videos */}
             <input
               type="file"
