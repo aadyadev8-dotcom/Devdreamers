@@ -18,6 +18,7 @@ const Index = () => {
             title="New Complaint"
             description="Report an issue in your area."
             onClick={() => navigate("/new-complaint-category")}
+            backgroundColorClass="bg-action-blue" // Specific background color
           />
         </div>
         <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -26,6 +27,7 @@ const Index = () => {
             title="Community Feed"
             description="See reported issues and their status."
             onClick={() => console.log("Community Feed clicked")}
+            backgroundColorClass="bg-action-green" // Specific background color
           />
         </div>
         <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
@@ -34,6 +36,7 @@ const Index = () => {
             title="View Leaderboard"
             description="Check out top community contributors."
             onClick={() => console.log("View Leaderboard clicked")}
+            backgroundColorClass="bg-action-red" // Specific background color
           />
         </div>
       </div>

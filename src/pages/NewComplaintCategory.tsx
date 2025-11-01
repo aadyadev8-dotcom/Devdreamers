@@ -6,13 +6,13 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
 const categories = [
-  { name: "Potholes/Road Damage" }, // Removed color property
-  { name: "Water Leakage" },
-  { name: "Broken Streetlights" },
-  { name: "Illegal Dumping" },
-  { name: "Garbage" },
-  { name: "Amenities" },
-  { name: "Other" },
+  { name: "Potholes/Road Damage", color: "bg-category-potholes" },
+  { name: "Water Leakage", color: "bg-category-water" },
+  { name: "Broken Streetlights", color: "bg-category-streetlights" },
+  { name: "Illegal Dumping", color: "bg-category-dumping" },
+  { name: "Garbage", color: "bg-category-garbage" },
+  { name: "Amenities", color: "bg-category-amenities" },
+  { name: "Other", color: "bg-category-other" },
 ];
 
 const NewComplaintCategory: React.FC = () => {
@@ -35,8 +35,8 @@ const NewComplaintCategory: React.FC = () => {
             <Button
               onClick={() => handleCategoryClick(category.name)}
               className={cn(
-                "flex flex-col items-center justify-center text-white p-4 rounded-lg shadow-button-3d border border-transparent w-full h-24 text-center transition-all transform hover:scale-105 active:scale-95", // Added shadow, hover, active effects
-                "bg-gradient-to-br from-button-gradient-start to-button-gradient-end" // Applied new gradient
+                "flex flex-col items-center justify-center text-white p-4 rounded-lg shadow-button-3d border border-transparent w-full h-24 text-center transition-all transform hover:scale-105 active:scale-95",
+                category.color // Apply the specific category color
               )}
             >
               <span className="text-lg font-semibold text-wrap">{category.name}</span>

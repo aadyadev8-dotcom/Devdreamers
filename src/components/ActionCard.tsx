@@ -10,15 +10,16 @@ interface ActionCardProps {
   title: string;
   description: string;
   onClick: () => void;
+  backgroundColorClass: string; // New prop for background color
 }
 
-const ActionCard: React.FC<ActionCardProps> = ({ icon: Icon, title, description, onClick }) => {
+const ActionCard: React.FC<ActionCardProps> = ({ icon: Icon, title, description, onClick, backgroundColorClass }) => {
   return (
     <Button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center text-white p-6 rounded-lg shadow-button-3d border border-transparent w-full max-w-xs h-36 text-center transition-all transform hover:scale-105 active:scale-95", // Added shadow, hover, active effects
-        "bg-gradient-to-br from-button-gradient-start to-button-gradient-end" // Applied new gradient
+        "flex flex-col items-center justify-center text-white p-6 rounded-lg shadow-button-3d border border-transparent w-full max-w-xs h-36 text-center transition-all transform hover:scale-105 active:scale-95",
+        backgroundColorClass // Apply the specific background color class
       )}
     >
       <Icon className="h-8 w-8 mb-2" />
